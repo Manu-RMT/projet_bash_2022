@@ -64,10 +64,14 @@ maPile=()
 empile 0
 empile 1
 empile 2
+nvchiffre
 
-affichePile
+#6.1 q1 affichePile
 
-#depileS
+depile
+depile
+
+
 
 
 #shift
