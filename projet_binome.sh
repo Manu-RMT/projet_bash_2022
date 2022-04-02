@@ -56,13 +56,20 @@ function nvchiffre(){
     then
       echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
       depile
-      
-    else  
-      
-      if [[ "$input" =~ ^(\+|\-|\*|\/|\*\*)$ ]] # si c'est un operateur mathématique
+  else  
+    if [[ "$input" =~ ^(\+|\-|\*|\/|\*\*)$ ]] # si c'est un operateur mathématique
+    then
+      operation
+    else 
+       #verifie si nc'est un nombre 
+      if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]]
       then
-        operation
-      fi
+         empile $input
+      else  #sinon message d'erreur
+       echo "Ce n'est ni un nombre entier ou ni un nombre decimal"
+      fi 
+    fi
+
   fi
 
   affichePile #affiche la pile après insertion valeur
