@@ -20,12 +20,14 @@ function formatChaine()
 function affichePile()
 {
 
- echo -e "\033[100m                              \033[m" #Bordure Haut
+length_element_pile=${#maPile[@]}
+
+ echo -e "\033[100m  $length_element_pile                           \033[m" #Bordure Haut
 
 for i in {4..1}
 do
   
-  formatChaine " ${maPile[$i-1]:="--"} | " 25 " $((i++)):" #affichage des elements de la calculatrice
+  formatChaine " ${maPile[$i-1]:-"--"} | " 25 " $((i++)):" #affichage des elements de la calculatrice
   
 done
 
@@ -40,21 +42,56 @@ function empile(){
 
 function depile(){
   read last <<< "${maPile[0]}" #récupération de la tête de liste
-  echo "depile: element recupéré: $last"
   unset maPile[0] #suppression de la valeur de maPile[0]
   maPile=( "${maPile[@]}") #décalage des éléments de la liste pour que maPile[0]=2 et non vide (puisqu'on a unset maPile[0])
-  affichePile
 }
 
 function nvchiffre(){
+
+  affichePile #affiche pile avant inserton valeur 
+
   echo -n ">"
   read input
   if [ $input = "P" ]
     then
+      echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
       depile
+      
     else  
-      empile $input
+      
+      if [[ "$input" =~ ^(\+|\-|\*|\/|\*\*)$ ]] # si c'est un operateur mathématique
+      then
+        operation
+      fi
   fi
+
+  affichePile #affiche la pile après insertion valeur
+
+}
+
+
+function operation(){
+  depile
+  nb1=$last
+  depile 
+  nb2=$last
+
+  case $input in 
+  "+")
+    resultat=$(($nb1+$nb2))
+  ;;
+  "-")
+     resultat=$(($nb1-$nb2))
+   ;;
+  "*") 
+    resultat=$(($nb1*$nb2))
+  ;;
+  "/") 
+    resultat=$(($nb1/$nb2))
+  ;;
+  esac
+
+  empile $resultat
 }
 
 
@@ -64,12 +101,8 @@ maPile=()
 empile 0
 empile 1
 empile 2
+
 nvchiffre
-
-#6.1 q1 affichePile
-
-depile
-depile
 
 
 
