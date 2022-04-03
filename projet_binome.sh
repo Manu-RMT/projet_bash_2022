@@ -48,31 +48,33 @@ function depile(){
 
 function nvchiffre(){
 
-  affichePile #affiche pile avant inserton valeur 
+echo -n ">"
+read input
 
-  echo -n ">"
-  read input
-  if [ $input = "P" ]
-    then
-      echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
-      depile
-  else  
-    if [[ "$input" =~ ^(\+|\-|\*|\/|\*\*)$ ]] # si c'est un operateur mathématique
-    then
-      operation
-    else 
-       #verifie si nc'est un nombre 
-      if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]]
-      then
-         empile $input
-      else  #sinon message d'erreur
-       echo "Ce n'est ni un nombre entier ou ni un nombre decimal"
-      fi 
-    fi
+if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre
+then 
+  empile $input
+else  
+  case $input in 
+  "P")
+    echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
+    depile
+  ;;
+  "STOP"|"stop")
+    echo "Arret de la calculatrice !!!"
+    exit
+  ;;
+  "+"|"-"|"*"|"/"|"cos"|"sin"|"tan"|"sqrt") # si c'est un operateur
+    operation
+  ;;
+  *)
+  echo "Ce n'est ni un nombre ni un operateur"
+  
+  ;;
+  esac
+fi
 
-  fi
-
-  affichePile #affiche la pile après insertion valeur
+affichePile #affiche la pile après insertion valeur
 
 }
 
@@ -96,6 +98,23 @@ function operation(){
   "/") 
     resultat=$(($nb1/$nb2))
   ;;
+   "cos")
+    empile $nb2
+    resultat=$(php -r "echo cos($nb1);")
+  ;;
+  "sin")
+    empile $nb2
+    resultat=$(php -r "echo sin($nb1);")
+  ;;
+  "tan")
+    empile $nb2
+    resultat=$(php -r "echo tan($nb1);")
+  ;;
+  "sqrt")
+    empile $nb2
+    resultat=$(php -r "echo sqrt($nb1);")
+  ;;
+
   esac
 
   empile $resultat
@@ -109,7 +128,12 @@ empile 0
 empile 1
 empile 2
 
-nvchiffre
+affichePile
+until [[ "$input" = "STOP" ]]
+do 
+  nvchiffre
+done
+
 
 
 
@@ -117,4 +141,3 @@ nvchiffre
 #shift
 #Q5 optionnel
 #mettre -- pour les nombres negatifs
-
