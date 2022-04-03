@@ -118,10 +118,12 @@ affichePile #affiche la pile après insertion valeur
 function operation(){
 #depile et stoke les deux derniers valeurs de la calculatrice dans des nouvelles vatiables
 # pour les utilisers par la suite
+
+
 depile
-nb1=$last
+nb1=${last:-0} #si vide remplace par 0
 depile
-nb2=$last
+nb2=${last:-0}
 
 case $input in
   "+") #addition
@@ -134,7 +136,13 @@ case $input in
     resultat=$(($nb1*$nb2))
   ;;
   "/") #division
-    resultat=$(($nb1/$nb2))
+    if [[ $nb2 != 0 ]] # si le denominateur ne vaut pas 0
+    then
+      resultat=$(($nb1/$nb2))
+    else #sinon resultat = derniere element de la pile
+      echo "operation impossible : division par 0"
+      resultat=$nb1
+    fi
   ;;
   # ATTENTION PARTICULIERE CAR IL FAUT REEMPILER LA DERNIERE VALEUR
   "cos") #cosinus
@@ -170,6 +178,7 @@ until [[ "$input" = "STOP" ]] #boucle qui permet de ne jamais stopper la calcula
 do
   TraitementCalculatrice #traitement de la calculatrice
 done
+
 
 
 
