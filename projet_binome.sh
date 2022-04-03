@@ -68,11 +68,13 @@ else
     operation
   ;;
   *)
-  echo "Ce n'est ni un nombre ni un operateur"
-  
+    echo "Ce n'est ni un nombre ni un operateur"
   ;;
   esac
 fi
+
+
+
 
 affichePile #affiche la pile après insertion valeur
 
