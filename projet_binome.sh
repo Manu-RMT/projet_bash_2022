@@ -54,6 +54,12 @@ read input
 if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre
 then 
   empile $input
+
+elif [[ ${input:0:4} == "save" ]] 
+then
+  
+
+
 else  
   case $input in 
   "P")
@@ -72,9 +78,6 @@ else
   ;;
   esac
 fi
-
-
-
 
 affichePile #affiche la pile après insertion valeur
 
@@ -126,9 +129,12 @@ function operation(){
 #REGION UTILISATION DES FONCTIONS 
 
 maPile=()
+SauvegardeValeur=()
+
 empile 0
 empile 1
 empile 2
+
 
 affichePile
 until [[ "$input" = "STOP" ]]
