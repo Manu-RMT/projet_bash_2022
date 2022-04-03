@@ -20,20 +20,21 @@ function formatChaine()
 function affichePile()
 {
 
-length_element_pile=${#maPile[@]}
+length_element_pile=${#maPile[@]} #initialisation pour nb element dans la piile
 
-
-if [[ ${#SauvegardeValeur[*]} != 0 ]] # si on une valeur sauvegarder dans le tableau
+# si on a sauvegardé une valeur et donc non vide
+if [[ ${#SauvegardeValeur[*]} != 0 ]] 
 then
-  for index in "${!SauvegardeValeur[@]}"
+  for index in "${!SauvegardeValeur[@]}" #parcours tableau par index car on peut avoir plusierus sauvegardes  
   do
-    echo "save="$index
+    echo "save="$index #affiche l'index
   done
 fi 
 
- echo -e "\033[100m  $length_element_pile                           \033[m" #Bordure Haut
+#gestion affichage calculatrice
+ echo -e "\033[100m  $length_element_pile                           \033[m" #Bordure Haut et nb elements pile
 
-for i in {4..1}
+for i in {4..1} #donne les 4 derniers elements par ordre decroissant
 do
   
   formatChaine " ${maPile[$i-1]:-"--"} | " 25 " $((i++)):" #affichage des elements de la calculatrice
@@ -52,49 +53,55 @@ function empile(){
 function depile(){
   read last <<< "${maPile[0]}" #récupération de la tête de liste
   unset maPile[0] #suppression de la valeur de maPile[0]
-  maPile=( "${maPile[@]}") #décalage des éléments de la liste pour que maPile[0]=2 et non vide (puisqu'on a unset maPile[0])
+  maPile=("${maPile[@]}") #décalage des éléments de la liste pour que maPile[0]=2 et non vide (puisqu'on a unset maPile[0]) (comme un shift)
 }
 
-function nvchiffre(){
+function TraitementCalculatrice(){
 
+#input box
 echo -n ">"
 read input
 
-if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre
+if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre on empile
 then 
   empile $input
 
-elif [[ ${input:0:4} == "save" ]] 
+# traitement sauvegarde valeur à reutiliser utlérieurement
+elif [[ ${input:0:4} == "save" ]] # si ca commence par save pour sauvegarder 
 then
-  new_val=${input:4}
-  depile 
-  SauvegardeValeur[$new_val]=$last 
-  
-elif [[ ${input:0:4} == "echo" && ${#SauvegardeValeur[*]} != 0 ]]  
+  new_val=${input:4} #variable prend comme valeur la suite du save 
+  depile #on supprime le dernier nombre de la calculatrice
+  SauvegardeValeur[$new_val]=$last #index = suite de save et valeur = element dépilé
+
+#traitement recuperation valeur(s) sauvegardé
+elif [[ ${input:0:4} == "echo" && ${#SauvegardeValeur[*]} != 0 ]]  #si ca commence par echo et tableau valeur sauvegarder non vide
 then
-  for index in "${!SauvegardeValeur[@]}"
+  for index in "${!SauvegardeValeur[@]}" #parcours du tableau par index
   do
-    if [[ ${input:4} == $index ]]
+    if [[ ${input:4} == $index ]] #verifie si la suite de echo correspond à un index du tableau 
     then 
-      empile ${SauvegardeValeur[$index]}
-      unset SauvegardeValeur[$index] # supprime element du tableau      
+      empile ${SauvegardeValeur[$index]} #on le remet dans la calculatrice
+      unset SauvegardeValeur[$index] # on supprime element du tableau  
+    else 
+      echo "variable non sauvegarder : " ${input:4} # sinon 
     fi
   done
 else  
   case $input in 
-  "P")
-    depile
-    echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
+  "P") #si on s'est trompé
+    depile 
+    echo "depile: element recupéré: $last" #affiche element dépilé
   ;;
-  "STOP"|"stop")
+  "STOP"|"stop") #arret le programme
+    clear #nettoie le terminal
     echo "Arret de la calculatrice !!!"
     exit
   ;;
-  "+"|"-"|"*"|"/"|"cos"|"sin"|"tan"|"sqrt") # si c'est un operateur
+  "+"|"-"|"*"|"/"|"cos"|"sin"|"tan"|"sqrt") # si c'est un operateur lance la fonction operation
     operation
   ;;
-  *)
-    echo "Ce n'est ni un nombre ni un operateur"
+  *) #sinon on ne fait rien 
+    echo "Ce n'est ni un nombre ni un operateur" 
   ;;
   esac
 fi
@@ -106,54 +113,58 @@ affichePile #affiche la pile après insertion valeur
 
 
 function operation(){
-  depile
-  nb1=$last
-  depile 
-  nb2=$last
+#depile et stoke les deux derniers valeurs de la calculatrice dans des nouvelles vatiables
+# pour les utilisers par la suite
+depile 
+nb1=$last
+depile 
+nb2=$last
 
-  case $input in 
-  "+")
+case $input in 
+  "+") #addition
     resultat=$(($nb1+$nb2))
   ;;
-  "-")
+  "-") #soustraction
      resultat=$(($nb1-$nb2))
    ;;
-  "*") 
+  "*") #multiplication
     resultat=$(($nb1*$nb2))
   ;;
-  "/") 
+  "/") #division
     resultat=$(($nb1/$nb2))
   ;;
-   "cos")
+  # ATTETION PARTICULIER CAR IL FAUT REEMPILER LA DERNIERE VALEUR
+  "cos") #cosinus
     empile $nb2
     resultat=$(php -r "echo cos($nb1);")
   ;;
-  "sin")
+  "sin") #sinus
     empile $nb2
     resultat=$(php -r "echo sin($nb1);")
   ;;
-  "tan")
+  "tan") #tangeante
     empile $nb2
     resultat=$(php -r "echo tan($nb1);")
   ;;
-  "sqrt")
+  "sqrt") #racine carrée
     empile $nb2
     resultat=$(php -r "echo sqrt($nb1);")
   ;;
+esac
+ 
+# on remet la nouvelle valeur dans la calculatrice
+empile $resultat
 
-  esac
-
-  empile $resultat
 }
 
 
 #REGION UTILISATION DES FONCTIONS 
-maPile=()  
-declare -A SauvegardeValeur
+maPile=() #init tableau valeur  
+declare -A SauvegardeValeur #init tableau des valeurs à sauvegarder 
 
-affichePile
-until [[ "$input" = "STOP" ]]
+affichePile #affichage de la pile 
+until [[ "$input" = "STOP" ]] #boucle qui permet de ne jamais stoper la calculatrice
 do 
-  nvchiffre
+  TraitementCalculatrice #traitement de la calculatrice
 done
 
