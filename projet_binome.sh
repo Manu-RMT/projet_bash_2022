@@ -22,6 +22,15 @@ function affichePile()
 
 length_element_pile=${#maPile[@]}
 
+
+if [[ ${#SauvegardeValeur[*]} != 0 ]] # si on une valeur sauvegarder dans le tableau
+then
+  for index in "${!SauvegardeValeur[@]}"
+  do
+    echo "save="$index
+  done
+fi 
+
  echo -e "\033[100m  $length_element_pile                           \033[m" #Bordure Haut
 
 for i in {4..1}
@@ -57,14 +66,25 @@ then
 
 elif [[ ${input:0:4} == "save" ]] 
 then
+  new_val=${input:4}
+  depile 
+  SauvegardeValeur[$new_val]=$last 
   
-
-
+elif [[ ${input:0:4} == "echo" && ${#SauvegardeValeur[*]} != 0 ]]  
+then
+  for index in "${!SauvegardeValeur[@]}"
+  do
+    if [[ ${input:4} == $index ]]
+    then 
+      empile ${SauvegardeValeur[$index]}
+      unset SauvegardeValeur[$index] # supprime element du tableau      
+    fi
+  done
 else  
   case $input in 
   "P")
-    echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
     depile
+    echo "depile: element recupéré: $last" #affiche que si on veut enlver un element
   ;;
   "STOP"|"stop")
     echo "Arret de la calculatrice !!!"
@@ -78,6 +98,7 @@ else
   ;;
   esac
 fi
+
 
 affichePile #affiche la pile après insertion valeur
 
@@ -127,14 +148,8 @@ function operation(){
 
 
 #REGION UTILISATION DES FONCTIONS 
-
-maPile=()
-SauvegardeValeur=()
-
-empile 0
-empile 1
-empile 2
-
+maPile=()  
+declare -A SauvegardeValeur
 
 affichePile
 until [[ "$input" = "STOP" ]]
@@ -142,10 +157,3 @@ do
   nvchiffre
 done
 
-
-
-
-
-#shift
-#Q5 optionnel
-#mettre -- pour les nombres negatifs
