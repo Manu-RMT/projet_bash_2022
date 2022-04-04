@@ -62,7 +62,7 @@ function TraitementCalculatrice(){
 echo -n ">"
 read input
 
-if [[ "$input" =~ ^[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre on empile
+if [[ "$input" =~ ^[+-]?[0-9]+(\.[0-9]+)?$ ]] #si c'est un nombre on empile
 then
   empile $input
 
@@ -89,7 +89,7 @@ then
   done
 else  
   case $input in
-  "P") #si on s'est trompé
+  "P"|"p") #si on s'est trompé
     depile
     echo "depile: element recupéré: $last" #affiche element dépilé
   ;;
