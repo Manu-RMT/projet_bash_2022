@@ -2,6 +2,21 @@
 
 #GITHUB : https://github.com/Manu-RMT/projet_bash_2022
 
+nom1="RAMANITRA"
+prenom1="Manuel"
+nom2="MONTALAND Quentin"
+date_jour=$(date)
+
+echo "______________________________ "
+echo "----- Projet Suivi BASH ------ "
+echo "___ MIASHS 2022          _____ "
+echo "___ Calculatrice         _____ "
+echo "__ Par : $nom1 $prenom1  ___"
+echo "__ et : $nom2  ___"
+echo "- ${date_jour:0:25} --"
+echo "______________________________ "
+echo ""
+
 function formatChaine()
 {
   mot=$1
