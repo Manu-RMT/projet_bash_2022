@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#GITHUB : https://github.com/Manu-RMT/projet_bash_2022
+
 function formatChaine()
 {
   mot=$1
